@@ -1,0 +1,123 @@
+versioning:
+  file_type_version: 1.0
+  project_plan_version: 1.2
+  format_repo: https://github.com/l5/local-project-tools/project-plan
+
+project:
+  name: Project Name
+  description: Brief description of the project.
+
+phases:
+  - id: phase_1
+    name: Phase 1
+    description: Description of phase 1.
+    dependencies:
+      - task_id: task_1
+      - task_id: task_2
+      - phase_id: phase_2
+
+  - id: phase_2
+    name: Phase 2
+    description: Description of phase 2.
+    dependencies:
+      - task_id: task_3
+      - phase_id: phase_1
+
+scope_elements:
+  - id: scope_1
+    name: Scope Element 1
+    description: Details about what is in scope for this project.
+    estimate:
+      resources:
+        - resource: resource_1
+          days: 5
+        - resource: resource_2
+          days: 3
+      comment: Comment about the estimate for this scope element.
+
+  - id: scope_2
+    name: Scope Element 2
+    description: Details about another scope element.
+    estimate:
+      resources:
+        - resource: resource_1
+          days: 7
+        - resource: resource_3
+          days: 4
+      comment: Comment about the estimate for this scope element.
+
+architectural_gaps:
+  - id: gap_1
+    scope_element_id: scope_1
+    baseline_architecture: Text describing the current architecture.
+    target_architecture: Text describing the desired architecture.
+    intermediate_architectures:
+      - architecture: Intermediate Architecture 1
+        description: Text describing the first intermediate architecture.
+      - architecture: Intermediate Architecture 2
+        description: Text describing the second intermediate architecture.
+
+  - id: gap_2
+    scope_element_id: scope_2
+    baseline_architecture: Text describing the current architecture.
+    target_architecture: Text describing the desired architecture.
+    intermediate_architectures: []
+
+prerequisites:
+  - id: prereq_1
+    name: Prerequisite 1
+    description: Description of the task or condition required before starting.
+
+  - id: prereq_2
+    name: Prerequisite 2
+    description: Description of another prerequisite.
+
+resources:
+  - id: resource_1
+    role: Role Title 1
+    description: Details about the resource, e.g., personnel, hardware, software.
+
+  - id: resource_2
+    role: Role Title 2
+    description: Another resource and details.
+
+tasks:
+  - id: task_1
+    phase_id: phase_1
+    scope_element_id: scope_1
+    gap_id: gap_1
+    description: Description of task 1.
+    deliverables:
+      - Deliverable 1
+      - Deliverable 2
+    duration: 10 days
+    dependencies:
+      - prerequisite_id: prereq_1
+      - task_id: task_2
+      - phase_id: phase_2
+    resources:
+      - resource_id: resource_1
+        days: 5
+      - resource_id: resource_2
+        days: 3
+    responsible: Team or individual responsible.
+
+  - id: task_2
+    phase_id: phase_2
+    scope_element_id: scope_2
+    gap_id: gap_2
+    description: Description of task 2.
+    deliverables:
+      - Deliverable 3
+      - Deliverable 4
+    duration: 7 days
+    dependencies:
+      - prerequisite_id: prereq_2
+      - task_id: task_1
+      - phase_id: phase_1
+    resources:
+      - resource_id: resource_3
+        days: 4
+      - resource_id: resource_2
+        days: 2
+    responsible: Team or individual responsible.
