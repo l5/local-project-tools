@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: Project Plan Schema
   description: Schema for validating a project plan document using the specified file format.
-  version: 1.0.0
+  version: 1.1.0
   contact:
     name: Project Team
     url: https://github.com/l5/local-project-tools/project-plan
@@ -104,6 +104,9 @@ components:
           type: string
         baseline_architecture:
           type: string
+        gap:
+          type: string
+          description: Description of the gap.
         target_architecture:
           type: string
         intermediate_architectures:
@@ -119,6 +122,7 @@ components:
         - id
         - scope_element_id
         - baseline_architecture
+        - gap
         - target_architecture
 
     Prerequisite:
@@ -198,15 +202,5 @@ components:
         - description
         - deliverables
         - duration
-
-  required:
-    - Versioning
-    - Project
-    - Phase
-    - ScopeElement
-    - Gap
-    - Prerequisite
-    - Resource
-    - Task
 
 paths: {}
