@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Plan Visualization</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      height: 100vh;
+      margin: 0;
+    }
+    #input-section {
+      width: 50%;
+      padding: 20px;
+    }
+    #output-section {
+      width: 50%;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    textarea {
+      width: 100%;
+      height: 90%;
+      resize: none;
+    }
+    .column {
+      flex: 1;
+      padding: 10px;
+      margin: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    .visualization {
+      display: flex;
+      justify-content: space-between;
+    }
+    .column h3 {
+      margin-top: 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="input-section">
+    <h2>Paste YAML</h2>
+    <textarea id="yaml-input" placeholder="Paste your YAML here..."></textarea>
+    <button onclick="generateVisualization()">Generate Visualization</button>
+  </div>
+  
+  <div id="output-section">
+    <h2>Visualization</h2>
+    <div class="visualization">
+      <div class="column" id="current-architecture">
+        <h3>Current Architecture</h3>
+        <div id="current-content"></div>
+      </div>
+      <div class="column" id="gap">
+        <h3>Gap</h3>
+        <div id="gap-content"></div>
+      </div>
+      <div class="column" id="target-architecture">
+        <h3>Target Architecture</h3>
+        <div id="target-content"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/3.14.0/js-yaml.min.js"></script>
+  <script>
+    function generateVisualization() {
+      const yamlText = document.getElementById('yaml-input').value;
+      try {
+        const doc = jsyaml.load(yamlText);
+        
+        const gap = doc.architectural_gaps[0]; // Get first gap for simplicity
+
+        document.getElementById('current-content').textContent = gap.baseline_architecture;
+        document.getElementById('gap-content').textContent = gap.gap;
+        document.getElementById('target-content').textContent = gap.target_architecture;
+      } catch (e) {
+        alert('Invalid YAML!');
+        console.log(e);
+      }
+    }
+  </script>
+</body>
+</html>
