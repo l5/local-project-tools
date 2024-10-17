@@ -18,13 +18,19 @@
     #output-section {
       width: 50%;
       padding: 20px;
-      display: flex;
-      flex-direction: column;
+      overflow-y: auto;
     }
     textarea {
       width: 100%;
       height: 90%;
       resize: none;
+    }
+    .gap-section {
+      margin-bottom: 20px;
+    }
+    .gap-section .visualization {
+      display: flex;
+      justify-content: space-between;
     }
     .column {
       flex: 1;
@@ -32,10 +38,6 @@
       margin: 5px;
       border: 1px solid #ccc;
       border-radius: 5px;
-    }
-    .visualization {
-      display: flex;
-      justify-content: space-between;
     }
     .column h3 {
       margin-top: 0;
@@ -51,34 +53,58 @@
   
   <div id="output-section">
     <h2>Visualization</h2>
-    <div class="visualization">
-      <div class="column" id="current-architecture">
-        <h3>Current Architecture</h3>
-        <div id="current-content"></div>
-      </div>
-      <div class="column" id="gap">
-        <h3>Gap</h3>
-        <div id="gap-content"></div>
-      </div>
-      <div class="column" id="target-architecture">
-        <h3>Target Architecture</h3>
-        <div id="target-content"></div>
-      </div>
-    </div>
+    <div id="gaps-output"></div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/3.14.0/js-yaml.min.js"></script>
   <script>
     function generateVisualization() {
       const yamlText = document.getElementById('yaml-input').value;
+      const gapsOutput = document.getElementById('gaps-output');
+      gapsOutput.innerHTML = ''; // Clear previous content
+
       try {
         const doc = jsyaml.load(yamlText);
         
-        const gap = doc.architectural_gaps[0]; // Get first gap for simplicity
+        const gaps = doc.architectural_gaps; // Get all gaps
 
-        document.getElementById('current-content').textContent = gap.baseline_architecture;
-        document.getElementById('gap-content').textContent = gap.gap;
-        document.getElementById('target-content').textContent = gap.target_architecture;
+        gaps.forEach((gap, index) => {
+          // Create a new section for each gap
+          const gapSection = document.createElement('div');
+          gapSection.classList.add('gap-section');
+
+          // Create the gap header
+          const gapHeader = document.createElement('h3');
+          gapHeader.textContent = `Gap ${index + 1}`;
+          gapSection.appendChild(gapHeader);
+
+          // Create the visualization columns
+          const visualization = document.createElement('div');
+          visualization.classList.add('visualization');
+
+          // Current Architecture Column
+          const currentArchColumn = document.createElement('div');
+          currentArchColumn.classList.add('column');
+          currentArchColumn.innerHTML = `<h3>Current Architecture</h3><p>${gap.baseline_architecture}</p>`;
+          visualization.appendChild(currentArchColumn);
+
+          // Gap Column
+          const gapColumn = document.createElement('div');
+          gapColumn.classList.add('column');
+          gapColumn.innerHTML = `<h3>Gap</h3><p>${gap.gap}</p>`;
+          visualization.appendChild(gapColumn);
+
+          // Target Architecture Column
+          const targetArchColumn = document.createElement('div');
+          targetArchColumn.classList.add('column');
+          targetArchColumn.innerHTML = `<h3>Target Architecture</h3><p>${gap.target_architecture}</p>`;
+          visualization.appendChild(targetArchColumn);
+
+          // Add the visualization to the gap section
+          gapSection.appendChild(visualization);
+          gapsOutput.appendChild(gapSection);
+        });
+
       } catch (e) {
         alert('Invalid YAML!');
         console.log(e);

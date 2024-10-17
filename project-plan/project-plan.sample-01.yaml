@@ -49,18 +49,20 @@ scope_elements:
 architectural_gaps:
   - id: gap_1
     scope_element_id: scope_1
-    baseline_architecture: Text describing the current architecture.
-    target_architecture: Text describing the desired architecture.
+    baseline_architecture: Text describing one building block of the current architecture, let's say building block A.
+    gap: Text describing the actual gap between the baseline and target architectures of building block A
+    target_architecture: Text describing the desired architecture of building block A.
     intermediate_architectures:
       - architecture: Intermediate Architecture 1
-        description: Text describing the first intermediate architecture.
+        description: Text describing the first intermediate architecture of building block A.
       - architecture: Intermediate Architecture 2
-        description: Text describing the second intermediate architecture.
+        description: Text describing the second intermediate architecture of building block A.
 
   - id: gap_2
     scope_element_id: scope_2
-    baseline_architecture: Text describing the current architecture.
-    target_architecture: Text describing the desired architecture.
+    baseline_architecture: Text describing another building block of the current architecture, let's say building block B.
+    gap: Text describing the actual gap between the baseline and target architectures of building block B
+    target_architecture: Text describing the desired architecture of building block B.
     intermediate_architectures: []
 
 prerequisites:
