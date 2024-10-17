@@ -1,0 +1,212 @@
+openapi: 3.0.0
+info:
+  title: Project Plan Schema
+  description: Schema for validating a project plan document using the specified file format.
+  version: 1.0.0
+  contact:
+    name: Project Team
+    url: https://github.com/l5/local-project-tools/project-plan
+
+components:
+  schemas:
+    Versioning:
+      type: object
+      properties:
+        file_type_version:
+          type: string
+          description: Version of the file type format.
+        project_plan_version:
+          type: string
+          description: Version of the project plan.
+        format_repo:
+          type: string
+          description: Link to the repository where the file format is defined.
+          format: uri
+      required:
+        - file_type_version
+        - project_plan_version
+        - format_repo
+
+    Project:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Name of the project.
+        description:
+          type: string
+          description: Brief description of the project.
+      required:
+        - name
+        - description
+
+    Phase:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the phase.
+        name:
+          type: string
+          description: Name of the phase.
+        description:
+          type: string
+          description: Description of the phase.
+        dependencies:
+          type: array
+          items:
+            type: object
+            properties:
+              task_id:
+                type: string
+              phase_id:
+                type: string
+      required:
+        - id
+        - name
+        - description
+
+    ScopeElement:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        estimate:
+          type: object
+          properties:
+            resources:
+              type: array
+              items:
+                type: object
+                properties:
+                  resource:
+                    type: string
+                  days:
+                    type: integer
+            comment:
+              type: string
+      required:
+        - id
+        - name
+        - description
+        - estimate
+
+    Gap:
+      type: object
+      properties:
+        id:
+          type: string
+        scope_element_id:
+          type: string
+        baseline_architecture:
+          type: string
+        target_architecture:
+          type: string
+        intermediate_architectures:
+          type: array
+          items:
+            type: object
+            properties:
+              architecture:
+                type: string
+              description:
+                type: string
+      required:
+        - id
+        - scope_element_id
+        - baseline_architecture
+        - target_architecture
+
+    Prerequisite:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+      required:
+        - id
+        - name
+        - description
+
+    Resource:
+      type: object
+      properties:
+        id:
+          type: string
+        role:
+          type: string
+        description:
+          type: string
+      required:
+        - id
+        - role
+        - description
+
+    Task:
+      type: object
+      properties:
+        id:
+          type: string
+        phase_id:
+          type: string
+        scope_element_id:
+          type: string
+        gap_id:
+          type: string
+        description:
+          type: string
+        deliverables:
+          type: array
+          items:
+            type: string
+        duration:
+          type: string
+        dependencies:
+          type: array
+          items:
+            type: object
+            properties:
+              task_id:
+                type: string
+              prerequisite_id:
+                type: string
+              phase_id:
+                type: string
+        resources:
+          type: array
+          items:
+            type: object
+            properties:
+              resource_id:
+                type: string
+              days:
+                type: integer
+        responsible:
+          type: string
+      required:
+        - id
+        - phase_id
+        - scope_element_id
+        - gap_id
+        - description
+        - deliverables
+        - duration
+
+  required:
+    - Versioning
+    - Project
+    - Phase
+    - ScopeElement
+    - Gap
+    - Prerequisite
+    - Resource
+    - Task
+
+paths: {}
