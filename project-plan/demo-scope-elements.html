@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YAML Scope Estimator</title>
+    <style>
+        body {
+            display: flex;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+        }
+        #yamlInput {
+            width: 50%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #renderedOutput {
+            width: 50%;
+            padding: 20px;
+            background-color: #f7f7f7;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+        textarea {
+            width: 100%;
+            height: 90%;
+        }
+        .scope-element {
+            margin-bottom: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            background: #fff;
+        }
+        .summary {
+            margin-top: 20px;
+            padding: 10px;
+            border-top: 2px solid #000;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+</head>
+<body>
+    <div id="yamlInput">
+        <h3>YAML Input</h3>
+        <textarea id="yamlTextarea" placeholder="Paste your YAML here..."></textarea>
+    </div>
+    <div id="renderedOutput">
+        <h3>Rendered Output</h3>
+        <div id="outputContainer"></div>
+        <div id="summaryContainer" class="summary"></div>
+    </div>
+    <script>
+        document.getElementById('yamlTextarea').addEventListener('input', function() {
+            const yamlText = this.value;
+            const outputContainer = document.getElementById('outputContainer');
+            const summaryContainer = document.getElementById('summaryContainer');
+            outputContainer.innerHTML = '';
+            summaryContainer.innerHTML = '';
+
+            try {
+                const parsedYaml = jsyaml.load(yamlText);
+                const resourceSummary = {};
+
+                if (parsedYaml && parsedYaml.scope_elements) {
+                    parsedYaml.scope_elements.forEach(scope => {
+                        const scopeDiv = document.createElement('div');
+                        scopeDiv.className = 'scope-element';
+                        const resources = scope.estimate.resources.map(res => {
+                            if (resourceSummary[res.resource]) {
+                                resourceSummary[res.resource] += res.days;
+                            } else {
+                                resourceSummary[res.resource] = res.days;
+                            }
+                            return `${res.resource}: ${res.days} days`;
+                        }).join(', ');
+                        scopeDiv.innerHTML = `
+                            <strong>Scope Element:</strong> ${scope.name}<br>
+                            <strong>Description:</strong> ${scope.description || 'N/A'}<br>
+                            <strong>Resources:</strong> ${resources || 'N/A'}<br>
+                            <strong>Comments:</strong> ${scope.estimate.comment || 'N/A'}
+                        `;
+                        outputContainer.appendChild(scopeDiv);
+                    });
+
+                    // Render summary
+                    summaryContainer.innerHTML = '<strong>Resource Summary:</strong><br>' +
+                        Object.entries(resourceSummary).map(([resource, days]) => `${resource}: ${days} days`).join('<br>');
+                }
+            } catch (e) {
+                outputContainer.innerHTML = '<p style="color: red;">Error parsing YAML: ' + e.message + '</p>';
+            }
+        });
+    </script>
+</body>
+</html>
