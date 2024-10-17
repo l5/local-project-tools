@@ -11,12 +11,14 @@
             margin: 0;
             padding: 0;
             height: 100vh;
+            overflow: hidden;
         }
         #yamlInput {
             width: 50%;
             padding: 20px;
             box-sizing: border-box;
             position: relative;
+            
         }
         #yamlTextarea {
             width: 100%;
@@ -38,6 +40,7 @@
             background-color: #f7f7f7;
             box-sizing: border-box;
             overflow-y: auto;
+            
         }
         .scope-element {
             margin-bottom: 40px;
@@ -97,11 +100,37 @@
             padding: 10px;
             border-top: 2px solid #000;
         }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        #toggleButton {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5em;
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
 </head>
 <body>
+    <button id="toggleButton" style="color: #aaaaaa; position: fixed; top: -10px; left: 0; z-index: 1000; padding: 5px; background-color: #ffffff; border: none; cursor: pointer;">☰</button>
     <div id="yamlInput">
+        <h3>Source Project Plan YAML</h3>
         <textarea id="yamlTextarea" placeholder="Paste your YAML here..."></textarea>
         <div id="cursorPosition">Line: 1, Column: 1</div>
     </div>
@@ -113,6 +142,25 @@
     <script>
         const textarea = document.getElementById('yamlTextarea');
         const cursorPosition = document.getElementById('cursorPosition');
+        const toggleButton = document.getElementById('toggleButton');
+        const yamlInput = document.getElementById('yamlInput');
+        const renderedOutput = document.getElementById('renderedOutput');
+        let isHidden = false;
+        const cursorPositionContainer = document.getElementById('cursorPosition');
+
+        toggleButton.addEventListener('click', () => {
+            isHidden = !isHidden;
+            if (isHidden) {
+                yamlInput.style.display = 'none';
+                cursorPositionContainer.style.display = 'none';
+                renderedOutput.style.width = '100%';
+            } else {
+                yamlInput.style.display = 'block';
+                cursorPositionContainer.style.display = 'block';
+                yamlInput.style.width = '50%';
+                renderedOutput.style.width = '50%';
+            }
+        });
 
         textarea.addEventListener('input', updateCursorPosition);
         textarea.addEventListener('click', updateCursorPosition);
@@ -136,6 +184,8 @@
             try {
                 const parsedYaml = jsyaml.load(yamlText);
                 const resourceSummary = {};
+                const scopeResourceSummary = {};
+                let totalDays = 0;
 
                 if (parsedYaml && parsedYaml.scope_elements) {
                     // Map resources by id for easier access to roles
@@ -161,9 +211,11 @@
                         scopeDiv.appendChild(scopeTitle);
 
                         // Description
-                        const scopeDescription = document.createElement('div');
-                        scopeDescription.textContent = scope.description || 'N/A';
-                        scopeDiv.appendChild(scopeDescription);
+                        if (scope.description) {
+                            const scopeDescription = document.createElement('div');
+                            scopeDescription.textContent = scope.description;
+                            scopeDiv.appendChild(scopeDescription);
+                        }
 
                         // Estimations card
                         if (scope.estimate) {
@@ -183,6 +235,18 @@
                                     } else {
                                         resourceSummary[role] = res.days;
                                     }
+
+                                    if (!scopeResourceSummary[scope.name]) {
+                                        scopeResourceSummary[scope.name] = {};
+                                    }
+                                    if (scopeResourceSummary[scope.name][role]) {
+                                        scopeResourceSummary[scope.name][role] += res.days;
+                                    } else {
+                                        scopeResourceSummary[scope.name][role] = res.days;
+                                    }
+
+                                    totalDays += res.days;
+
                                     const resourceLabel = document.createElement('span');
                                     resourceLabel.className = 'resource-label';
                                     resourceLabel.textContent = `${role}: ${res.days} days`;
@@ -203,9 +267,35 @@
                         outputContainer.appendChild(scopeDiv);
                     });
 
-                    // Render summary
-                    summaryContainer.innerHTML = '<strong>Resource Summary:</strong><br>' +
+                    // Render resource summary
+                    let resourceSummaryHTML = '<strong>Resource Summary:</strong><br>' +
                         Object.entries(resourceSummary).map(([resource, days]) => `${resource}: ${days} days`).join('<br>');
+
+                    // Render scope element and resource summary as a table
+                    let scopeResourceSummaryHTML = '<strong>Scope Element and Resource Summary:</strong><br>';
+                    scopeResourceSummaryHTML += '<table><thead><tr><th>Scope Element</th>';
+                    const allResources = Object.keys(resourceSummary);
+                    allResources.forEach(resource => {
+                        scopeResourceSummaryHTML += `<th>${resource}</th>`;
+                    });
+                    scopeResourceSummaryHTML += '<th>Total Days</th></tr></thead><tbody>';
+
+                    Object.entries(scopeResourceSummary).forEach(([scope, resources]) => {
+                        scopeResourceSummaryHTML += `<tr><td>${scope}</td>`;
+                        let scopeTotal = 0;
+                        allResources.forEach(resource => {
+                            const days = resources[resource] || 0;
+                            scopeTotal += days;
+                            scopeResourceSummaryHTML += `<td>${days}</td>`;
+                        });
+                        scopeResourceSummaryHTML += `<td>${scopeTotal}</td></tr>`;
+                    });
+                    scopeResourceSummaryHTML += '</tbody></table>';
+
+                    // Render total summary
+                    let totalSummaryHTML = `<strong>Total Summary:</strong><br>Total Days: ${totalDays} days`;
+
+                    summaryContainer.innerHTML = `${resourceSummaryHTML}<br><br>${scopeResourceSummaryHTML}<br><br>${totalSummaryHTML}`;
                 }
             } catch (e) {
                 outputContainer.innerHTML = '<p style="color: red;">Error parsing YAML: ' + e.message + '</p>';
@@ -214,6 +304,10 @@
 
         // Initialize cursor position on load
         updateCursorPosition();
+        // Render YAML if already present on load
+        if (textarea.value) {
+            document.getElementById('yamlTextarea').dispatchEvent(new Event('input'));
+        }
     </script>
-</body>
+<div style="position: absolute; bottom: 10px; right: 30px; font-size: 0.7em; color: #aaaaaa; text-decoration: none;"><a href="https://l5.github.io/local-project-tools/" target="_blank" style="text-decoration: none; color: #aaaaaa;">Generated by Local Project Tools</a></div>
 </html>
