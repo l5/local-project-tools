@@ -16,6 +16,21 @@
             width: 50%;
             padding: 20px;
             box-sizing: border-box;
+            position: relative;
+        }
+        #yamlTextarea {
+            width: 100%;
+            height: 90%;
+            font-family: monospace;
+            resize: none;
+            white-space: pre;
+            box-sizing: border-box;
+            line-height: 1.5;
+        }
+        #cursorPosition {
+            font-size: 0.9em;
+            margin-top: 5px;
+            color: #555;
         }
         #renderedOutput {
             width: 50%;
@@ -23,10 +38,6 @@
             background-color: #f7f7f7;
             box-sizing: border-box;
             overflow-y: auto;
-        }
-        textarea {
-            width: 100%;
-            height: 90%;
         }
         .scope-element {
             margin-bottom: 20px;
@@ -44,8 +55,8 @@
 </head>
 <body>
     <div id="yamlInput">
-        <h3>YAML Input</h3>
         <textarea id="yamlTextarea" placeholder="Paste your YAML here..."></textarea>
+        <div id="cursorPosition">Line: 1, Column: 1</div>
     </div>
     <div id="renderedOutput">
         <h3>Rendered Output</h3>
@@ -53,6 +64,21 @@
         <div id="summaryContainer" class="summary"></div>
     </div>
     <script>
+        const textarea = document.getElementById('yamlTextarea');
+        const cursorPosition = document.getElementById('cursorPosition');
+
+        textarea.addEventListener('input', updateCursorPosition);
+        textarea.addEventListener('click', updateCursorPosition);
+        textarea.addEventListener('keyup', updateCursorPosition);
+
+        function updateCursorPosition() {
+            const text = textarea.value.substr(0, textarea.selectionStart);
+            const lines = text.split('\n');
+            const line = lines.length;
+            const column = lines[lines.length - 1].length + 1;
+            cursorPosition.textContent = `Line: ${line}, Column: ${column}`;
+        }
+
         document.getElementById('yamlTextarea').addEventListener('input', function() {
             const yamlText = this.value;
             const outputContainer = document.getElementById('outputContainer');
@@ -93,6 +119,9 @@
                 outputContainer.innerHTML = '<p style="color: red;">Error parsing YAML: ' + e.message + '</p>';
             }
         });
+
+        // Initialize cursor position on load
+        updateCursorPosition();
     </script>
 </body>
 </html>
