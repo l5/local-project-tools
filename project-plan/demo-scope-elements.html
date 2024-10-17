@@ -40,10 +40,29 @@
             overflow-y: auto;
         }
         .scope-element {
-            margin-bottom: 20px;
-            padding: 10px;
+            margin-bottom: 40px;
+            padding: 20px 10px 10px;
             border: 1px solid #ccc;
             background: #fff;
+            position: relative;
+            border-radius: 5px;
+        }
+        .scope-title-label {
+            font-weight: normal;
+            font-size: 0.8em;
+            background-color: #fff;
+            padding: 3px 10px;
+            border-radius: 5px 5px 0 0;
+            border: 1px solid #ccc;
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            text-align: left;
+        }
+        .scope-title {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 5px;
         }
         .resource-label {
             display: inline-block;
@@ -52,6 +71,26 @@
             background-color: #e0e0e0;
             border-radius: 5px;
             font-size: 0.8em;
+        }
+        .estimations {
+            margin-top: 20px;
+            padding: 20px 10px 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            position: relative;
+        }
+        .estimations-title {
+            font-weight: normal;
+            font-size: 0.7em;
+            background-color: #f9f9f9;
+            padding: 3px 10px;
+            border-radius: 5px 5px 0 0;
+            border: 1px solid #ddd;
+            position: absolute;
+            top: -10px;
+            left: 10px;
+            text-align: left;
         }
         .summary {
             margin-top: 20px;
@@ -67,7 +106,7 @@
         <div id="cursorPosition">Line: 1, Column: 1</div>
     </div>
     <div id="renderedOutput">
-        <h3>Rendered Output</h3>
+        <h3>Scope Elements</h3>
         <div id="outputContainer"></div>
         <div id="summaryContainer" class="summary"></div>
     </div>
@@ -99,29 +138,68 @@
                 const resourceSummary = {};
 
                 if (parsedYaml && parsedYaml.scope_elements) {
+                    // Map resources by id for easier access to roles
+                    const resourcesMap = parsedYaml.resources?.reduce((acc, resource) => {
+                        acc[resource.id] = resource.role;
+                        return acc;
+                    }, {}) || {};
+
                     parsedYaml.scope_elements.forEach(scope => {
                         const scopeDiv = document.createElement('div');
                         scopeDiv.className = 'scope-element';
-                        let resources = 'N/A';
-                        if (scope.estimate && scope.estimate.resources) {
-                            resources = scope.estimate.resources.map(res => {
-                                if (resourceSummary[res.resource]) {
-                                    resourceSummary[res.resource] += res.days;
-                                } else {
-                                    resourceSummary[res.resource] = res.days;
-                                }
-                                const resourceLabel = document.createElement('span');
-                                resourceLabel.className = 'resource-label';
-                                resourceLabel.textContent = `${res.resource}: ${res.days} days`;
-                                return resourceLabel.outerHTML;
-                            }).join(' ');
+
+                        // Scope title label
+                        const scopeTitleLabel = document.createElement('div');
+                        scopeTitleLabel.className = 'scope-title-label';
+                        scopeTitleLabel.textContent = 'Scope Element';
+                        scopeDiv.appendChild(scopeTitleLabel);
+
+                        // Title with scope name
+                        const scopeTitle = document.createElement('div');
+                        scopeTitle.className = 'scope-title';
+                        scopeTitle.textContent = scope.name;
+                        scopeDiv.appendChild(scopeTitle);
+
+                        // Description
+                        const scopeDescription = document.createElement('div');
+                        scopeDescription.textContent = scope.description || 'N/A';
+                        scopeDiv.appendChild(scopeDescription);
+
+                        // Estimations card
+                        if (scope.estimate) {
+                            const estimationsDiv = document.createElement('div');
+                            estimationsDiv.className = 'estimations';
+
+                            const estimationsTitle = document.createElement('div');
+                            estimationsTitle.className = 'estimations-title';
+                            estimationsTitle.textContent = 'Estimations';
+                            estimationsDiv.appendChild(estimationsTitle);
+
+                            if (scope.estimate.resources) {
+                                scope.estimate.resources.forEach(res => {
+                                    const role = resourcesMap[res.resource] || 'Unknown Role';
+                                    if (resourceSummary[role]) {
+                                        resourceSummary[role] += res.days;
+                                    } else {
+                                        resourceSummary[role] = res.days;
+                                    }
+                                    const resourceLabel = document.createElement('span');
+                                    resourceLabel.className = 'resource-label';
+                                    resourceLabel.textContent = `${role}: ${res.days} days`;
+                                    estimationsDiv.appendChild(resourceLabel);
+                                });
+                            }
+
+                            // Comments
+                            if (scope.estimate.comment) {
+                                const commentDiv = document.createElement('div');
+                                commentDiv.textContent = scope.estimate.comment;
+                                estimationsDiv.appendChild(commentDiv);
+                            }
+
+                            scopeDiv.appendChild(estimationsDiv);
                         }
-                        scopeDiv.innerHTML = `
-                            <strong>Scope Element:</strong> ${scope.name}<br>
-                            <strong>Description:</strong> ${scope.description || 'N/A'}<br>
-                            <strong>Resources:</strong> ${resources}<br>
-                            <strong>Comments:</strong> ${scope.estimate?.comment || 'N/A'}
-                        `;
+
                         outputContainer.appendChild(scopeDiv);
                     });
 
