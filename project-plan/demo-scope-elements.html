@@ -45,6 +45,14 @@
             border: 1px solid #ccc;
             background: #fff;
         }
+        .resource-label {
+            display: inline-block;
+            margin: 5px;
+            padding: 5px 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            font-size: 0.8em;
+        }
         .summary {
             margin-top: 20px;
             padding: 10px;
@@ -94,19 +102,25 @@
                     parsedYaml.scope_elements.forEach(scope => {
                         const scopeDiv = document.createElement('div');
                         scopeDiv.className = 'scope-element';
-                        const resources = scope.estimate.resources.map(res => {
-                            if (resourceSummary[res.resource]) {
-                                resourceSummary[res.resource] += res.days;
-                            } else {
-                                resourceSummary[res.resource] = res.days;
-                            }
-                            return `${res.resource}: ${res.days} days`;
-                        }).join(', ');
+                        let resources = 'N/A';
+                        if (scope.estimate && scope.estimate.resources) {
+                            resources = scope.estimate.resources.map(res => {
+                                if (resourceSummary[res.resource]) {
+                                    resourceSummary[res.resource] += res.days;
+                                } else {
+                                    resourceSummary[res.resource] = res.days;
+                                }
+                                const resourceLabel = document.createElement('span');
+                                resourceLabel.className = 'resource-label';
+                                resourceLabel.textContent = `${res.resource}: ${res.days} days`;
+                                return resourceLabel.outerHTML;
+                            }).join(' ');
+                        }
                         scopeDiv.innerHTML = `
                             <strong>Scope Element:</strong> ${scope.name}<br>
                             <strong>Description:</strong> ${scope.description || 'N/A'}<br>
-                            <strong>Resources:</strong> ${resources || 'N/A'}<br>
-                            <strong>Comments:</strong> ${scope.estimate.comment || 'N/A'}
+                            <strong>Resources:</strong> ${resources}<br>
+                            <strong>Comments:</strong> ${scope.estimate?.comment || 'N/A'}
                         `;
                         outputContainer.appendChild(scopeDiv);
                     });
