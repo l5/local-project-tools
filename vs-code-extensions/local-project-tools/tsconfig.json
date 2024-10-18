@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+        "module": "Node16",
+        "target": "ES2022",
+        "lib": [
+            "ES2022"
+        ],
+        "sourceMap": true,
+        "rootDir": "src",         // Specifies the root directory of input files
+        "outDir": "dist",         // Specifies the directory for output JavaScript files
+        "strict": true,           // Enable all strict type-checking options
+        "esModuleInterop": true,  // Enables compatibility with CommonJS modules
+        "forceConsistentCasingInFileNames": true, // Disallow inconsistently-cased references to the same file.
+        "skipLibCheck": true      // Skip type checking of declaration files
+    },
+    "include": [
+        "src"
+    ]
+}
