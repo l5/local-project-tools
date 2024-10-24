@@ -10,7 +10,7 @@ project:
 phases:
   - id: phase_1
     name: Phase 1
-    description: Description of phase 1.
+    description: Description of dddddphase 1.
     dependencies:
       - task_id: task_1
       - task_id: task_2

@@ -24,10 +24,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.activate = activate;
+// Import vscode and ColorThemeKind
 const vscode = __importStar(require("vscode"));
 function activate(context) {
     console.log('Extension activated');
-    // Register the command to open the YAML preview
     context.subscriptions.push(vscode.commands.registerCommand('yamlRenderer.showPreview', () => {
         const activeEditor = vscode.window.activeTextEditor;
         if (!activeEditor) {
@@ -46,21 +46,42 @@ function activate(context) {
             });
             // Pass both context and panel to getWebviewContent
             panel.webview.html = getWebviewContent(context, panel);
-            // Listen for changes to the document
+            // Send the initial YAML content and the current theme kind (light/dark)
+            panel.webview.postMessage({
+                type: 'update',
+                text: document.getText(),
+                theme: vscode.window.activeColorTheme.kind // Pass the theme information
+            });
+            // Listen for changes to the document and update the webview content
             const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument(e => {
                 if (e.document.uri.toString() === document.uri.toString()) {
-                    panel.webview.postMessage({ type: 'update', text: e.document.getText() });
+                    panel.webview.postMessage({
+                        type: 'update',
+                        text: e.document.getText(),
+                        theme: vscode.window.activeColorTheme.kind
+                    });
                 }
             });
-            // Clean up when the panel is disposedv
+            // Clean up when the panel is disposed
             panel.onDidDispose(() => {
                 changeDocumentSubscription.dispose();
             });
             // Handle messages from the webview
             panel.webview.onDidReceiveMessage(message => {
                 if (message.type === 'requestYaml') {
-                    panel.webview.postMessage({ type: 'update', text: document.getText() });
+                    panel.webview.postMessage({
+                        type: 'update',
+                        text: document.getText(),
+                        theme: vscode.window.activeColorTheme.kind
+                    });
                 }
+            });
+            // Update theme if it changes
+            vscode.window.onDidChangeActiveColorTheme(theme => {
+                panel.webview.postMessage({
+                    type: 'updateTheme',
+                    theme: theme.kind
+                });
             });
         }
         catch (e) {
@@ -70,9 +91,8 @@ function activate(context) {
     }));
 }
 function getWebviewContent(context, panel) {
-    // Use panel.webview.asWebviewUri to load the local script
-    const scriptUri = panel.webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'media', 'webview.js'));
-    const yamlLibUri = vscode.Uri.parse('https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js');
+    const scriptUri = panel.webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'media', 'webview.bundle.js'));
+    const styleUri = panel.webview.asWebviewUri(vscode.Uri.joinPath(context.extensionUri, 'media', 'style.css'));
     return `
         <!DOCTYPE html>
         <html lang="en">
@@ -80,45 +100,21 @@ function getWebviewContent(context, panel) {
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>YAML Scope Estimator Preview</title>
-            <script src="${yamlLibUri}"></script>
-            <style>
-                body {
-                    font-family: Arial, sans-serif;
-                    margin: 0;
-                    padding: 20px;
-                }
-                .scope-element {
-                    margin-bottom: 20px;
-                    padding: 15px;
-                    border: 1px solid #ccc;
-                    background: #f9f9f9;
-                }
-                .estimation-card {
-                    margin-top: 10px;
-                    padding: 10px;
-                    border-top: 2px solid #000;
-                    background: #e7f3ff;
-                }
-                .resource-label {
-                    display: inline-block;
-                    margin: 5px;
-                    padding: 5px 10px;
-                    border: 1px solid #007acc;
-                    background: #cce5ff;
-                    border-radius: 4px;
-                    font-size: 0.9em;
-                }
-                .summary {
-                    margin-top: 20px;
-                    padding: 10px;
-                    border-top: 2px solid #000;
-                }
-            </style>
+            <link rel="stylesheet" href="${styleUri}">
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
         </head>
         <body>
-            <div id="outputContainer"></div>
-            <div id="summaryContainer" class="summary"></div>
-            <script src="${scriptUri}"></script> <!-- Load webview.js -->
+            <div id="renderedOutput">
+                <h3>Scope Elements</h3>
+                <div id="outputContainer"></div>
+                <div id="summaryContainer" class="summary"></div>
+            </div>
+            <script src="${scriptUri}"></script>
+            <div style="position: absolute; bottom: 10px; right: 30px; font-size: 0.7em; color: #aaaaaa;">
+                <a href="https://l5.github.io/local-project-tools/" target="_blank" style="text-decoration: none; color: #aaaaaa;">
+                    Generated by Local Project Tools
+                </a>
+            </div>
         </body>
         </html>
     `;

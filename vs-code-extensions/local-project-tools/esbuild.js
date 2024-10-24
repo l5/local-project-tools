@@ -23,13 +23,37 @@ const esbuildProblemMatcherPlugin = {
 	},
 };
 
+async function buildRendererForBrowser() {
+	console.log("browser...")
+	await esbuild.build({
+		entryPoints: ['../../shared/renderer.js'],
+		bundle: true,
+		format: 'iife', // For the browser
+		minify: production,
+		outfile: '../../shared/renderer.browser.js',
+		globalName: 'Renderer', // Expose functions globally in the browser
+		target: ['chrome58', 'firefox57'], // Adjust browser target as needed
+	});
+}
+
+async function buildRendererForModule() {
+	await esbuild.build({
+		entryPoints: ['../../shared/renderer.js'],
+		bundle: true,
+		format: 'esm', // For VS Code extension (ESM)
+		minify: production,
+		outfile: 'dist/renderer.module.js',
+		target: ['node14'], // Node.js target for VS Code
+	});
+}
+
 async function main() {
 	const ctx = await esbuild.context({
 		entryPoints: [
 			'src/extension.ts'
 		],
 		bundle: true,
-		format: 'cjs',
+		format: 'cjs', // CommonJS for VS Code extension
 		minify: production,
 		sourcemap: !production,
 		sourcesContent: false,
@@ -38,10 +62,14 @@ async function main() {
 		external: ['vscode'],
 		logLevel: 'silent',
 		plugins: [
-			/* add to the end of plugins array */
 			esbuildProblemMatcherPlugin,
 		],
 	});
+
+	// Build the renderer for both browser and module
+	await buildRendererForBrowser();
+	await buildRendererForModule();
+
 	if (watch) {
 		await ctx.watch();
 	} else {
