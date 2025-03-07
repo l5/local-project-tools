@@ -1,6 +1,6 @@
 {
     "scripts": {
-        "copy-shared": "cp -R ./shared/* ./vs-code-extensions/local-project-tools/media && cp -R ./shared/* ./webapp",
+        "copy-shared": "cp -R ./shared/dist/* ./vs-code-extension/media && cp -R ./shared/dist/* ./webapp",
         "build-html": "cd shared && node build.js",
         "build": "npm run build-html && npm run copy-shared"
     }

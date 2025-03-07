@@ -6,3 +6,10 @@ It's all meant to be in-browser:
 
 * Either clone this repository and open the index.html file in the browser...
 * or access via github pages
+
+
+# Build
+
+1. modify code 
+  * in src for shared code
+1. 
