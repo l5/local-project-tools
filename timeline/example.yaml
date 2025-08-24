@@ -1,0 +1,182 @@
+
+title: Atlas Project Timeline — Showcase
+output: timeline_showcase.png
+xpad_days: 6
+daily_grid: true
+shade_weekends: true
+
+lanes_order:
+  - Foundation
+  - Research
+  - Build
+  - Launch
+
+style:
+  fig_width: 16
+  fig_height: 9
+  bar_height: 0.9
+  row_spacing: 1.2
+  lane_gap: 0.9
+  font_size: 10
+  lane_font_size: 11
+  milestone_size: 9
+  window_top_pad: 1.0
+  lane_label_offset_days: 10
+
+  # Theme (light-ish dark)
+  background_color: "#0E1116"
+  element_color: "#E5E9F0"
+  lane_label_color: "#E5E9F0"
+
+  # Grid
+  daily_line_color: "#3B4252"
+  daily_line_alpha: 0.45
+  weekend_shade_color: "#2E3440"
+  weekend_shade_alpha: 0.28
+
+  # Defaults
+  bar_color: "#4C78A8"
+  text_color: "#FFFFFF"
+  milestone_color: "#F2C14E"
+  milestone_text_color: "#F2C14E"
+
+  # Window defaults
+  window_bracket_color: "#8AB4F8"
+  window_main_linestyle: "-"
+  window_side_linestyle: "-."
+  window_linewidth: 1.8
+  window_span_color: "#81A1C1"
+  window_text_color: "#D8DEE9"
+
+# Per-lane styling (overrides global defaults for tasks in that lane)
+lane_styles:
+  Foundation:
+    bar_color: "#5DA5DA"
+    text_color: "#0E1116"
+  Research:
+    bar_color: "#B276B2"
+    text_color: "#0E1116"
+  Build:
+    bar_color: "#60BD68"
+    text_color: "#0E1116"
+  Launch:
+    bar_color: "#F17CB0"
+    text_color: "#0E1116"
+
+# Per-task styling (override both lane + global)
+task_styles:
+  "Public beta":
+    milestone_color: "#FFDD57"
+    milestone_text_color: "#FFDD57"
+  "Security review":
+    bar_color: "#FF9DA7"
+    text_color: "#0E1116"
+  "Stabilization":
+    bar_color: "#F1C40F"
+    text_color: "#0E1116"
+  "Design system v2":
+    bar_color: "#45B7D1"
+    text_color: "#0E1116"
+
+tasks:
+  # Foundation lane
+  - task: "Team setup"
+    lane: "Foundation"
+    type: "bar"
+    start: "2025-01-06"
+    end:   "2025-01-24"
+  - task: "Infra provisioning"
+    lane: "Foundation"
+    type: "bar"
+    start: "2025-01-13"
+    end:   "2025-02-07"
+  - task: "Design system v2"
+    lane: "Foundation"
+    type: "bar"
+    start: "2025-01-24"
+    end:   "2025-02-14"
+
+  # Research lane (milestones share a row)
+  - task: "User interviews #1"
+    lane: "Research"
+    type: "milestone"
+    date: "2025-01-22"
+  - task: "User interviews #2"
+    lane: "Research"
+    type: "milestone"
+    date: "2025-02-05"
+  - task: "User interviews #3"
+    lane: "Research"
+    type: "milestone"
+    date: "2025-02-19"
+  - task: "Feasibility study"
+    lane: "Research"
+    type: "bar"
+    start: "2025-01-27"
+    end:   "2025-02-21"
+
+  # Build lane
+  - task: "MVP sprint 1"
+    lane: "Build"
+    type: "bar"
+    start: "2025-02-10"
+    end:   "2025-02-21"
+  - task: "MVP sprint 2"
+    lane: "Build"
+    type: "bar"
+    start: "2025-02-24"
+    end:   "2025-03-07"
+  - task: "Security review"
+    lane: "Build"
+    type: "bar"
+    start: "2025-03-10"
+    end:   "2025-03-21"
+  - task: "Stabilization"
+    lane: "Build"
+    type: "bar"
+    start: "2025-03-24"
+    end:   "2025-04-04"
+
+  # Launch lane
+  - task: "Public beta"
+    lane: "Launch"
+    type: "milestone"
+    date: "2025-04-07"
+  - task: "GA (v1.0)"
+    lane: "Launch"
+    type: "milestone"
+    date: "2025-04-21"
+
+grouping:
+  Foundation:
+    - [ "Team setup" ]
+    - [ "Infra provisioning", "Design system v2" ]
+  Research:
+    - [ "User interviews #1", "User interviews #2", "User interviews #3" ]
+    - [ "Feasibility study" ]
+  Build:
+    - [ "MVP sprint 1", "MVP sprint 2" ]
+    - [ "Security review" ]
+    - [ "Stabilization" ]
+  Launch:
+    - [ "Public beta", "GA (v1.0)" ]
+
+windows:
+  - label: "Discovery phase"
+    start: "2025-01-06"
+    end:   "2025-02-21"
+    style: "span"
+    color: "#5DA5DA"
+    alpha: 0.10
+    text_color: "#E5E9F0"
+
+  - label: "Release window"
+    start: "2025-03-31"
+    end:   "2025-04-25"
+    style: "bracket"
+    main_color: "#8AB4F8"
+    side_color: "#8AB4F8"
+    text_color: "#EFFFFF"
+    main_linestyle: "-"
+    side_linestyle: "-."
+    linewidth: 1.8
